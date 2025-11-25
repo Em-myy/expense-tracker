@@ -116,4 +116,17 @@ router.get("/filter/week", async (req, res) => {
   }
 });
 
+router.get("/filter/category", async (req, res) => {
+  const { category } = req.query;
+
+  try {
+    const results = await Expense.find({ category });
+
+    res.status(200).json({ results });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Error filtering by category" });
+  }
+});
+
 export default router;

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axios";
@@ -20,13 +20,13 @@ const Dashboard = () => {
   const [monthData, setMonthData] = useState<expenseType[]>([]);
   const [weekDate, setWeekDate] = useState<string>("");
   const [weekData, setWeekData] = useState<expenseType[]>([]);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isCategory, setIsCategory] = useState<string>("income");
+  const [categoryData, setCategoryData] = useState<expenseType[]>([]);
+  const [filterReady, setFilterReady] = useState<boolean>(false);
 
   const handleDetails = (id: string) => {
     navigate(`/expensesDetails/${id}`);
-  };
-
-  const handleButtonClick = () => {
-    navigate("/createExpenses");
   };
 
   useEffect(() => {
@@ -70,11 +70,39 @@ const Dashboard = () => {
     }
   };
 
+  const handleCategoryFilter = async (): Promise<void> => {
+    try {
+      const res = await axiosClient.get(
+        `/expense/filter/category?category=${isCategory}`
+      );
+      setCategoryData(res.data.results);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleVisibility = () => {
+    setIsVisible((prev) => !prev);
+  };
+
+  const handleFilterChange = () => {
+    setFilterReady((prev) => !prev);
+  };
+
   return (
     <div>
       <div>Welcome to your dashboard</div>
       <div>
-        <div onClick={handleButtonClick}>Create new expenses</div>
+        <div>
+          <div onClick={handleVisibility}>Show Hidden buttons</div>
+          {isVisible ? (
+            <div>
+              <Link to="/createExpenses">Create New Expenses</Link>
+            </div>
+          ) : (
+            <div></div>
+          )}
+        </div>
       </div>
       <button onClick={handleLogout}>Logout</button>
       <div>
@@ -118,26 +146,72 @@ const Dashboard = () => {
             Filter by week
           </button>
         </div>
+
+        <div>
+          <h2>Filter by category</h2>
+          <select
+            value={isCategory}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setIsCategory(event.target.value)
+            }
+          >
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <button type="button" onClick={handleCategoryFilter}>
+            Filter by category
+          </button>
+        </div>
       </div>
 
       <div>
-        {monthData.map((index) => (
-          <div key={index._id}>
-            <div>{index.title}</div>
-            <div>{index.amount}</div>
-            <div>{index.category}</div>
-          </div>
-        ))}
-      </div>
+        <div>
+          {monthData.length === 0 ? (
+            <div>No data available for the selected month</div>
+          ) : (
+            <div>
+              {monthData.map((index) => (
+                <div key={index._id}>
+                  <div>{index.title}</div>
+                  <div>{index.amount}</div>
+                  <div>{index.category}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      <div>
-        {weekData.map((index) => (
-          <div key={index._id}>
-            <div>{index.title}</div>
-            <div>{index.amount}</div>
-            <div>{index.category}</div>
-          </div>
-        ))}
+        <div>
+          {weekData.length === 0 ? (
+            <div>No data available for the selected week</div>
+          ) : (
+            <div>
+              {weekData.map((index) => (
+                <div key={index._id}>
+                  <div>{index.title}</div>
+                  <div>{index.amount}</div>
+                  <div>{index.category}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          {categoryData.length === 0 ? (
+            <div>No data available for the selected category</div>
+          ) : (
+            <div>
+              {categoryData.map((index) => (
+                <div key={index._id}>
+                  <div>{index.title}</div>
+                  <div>{index.amount}</div>
+                  <div>{index.category}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ type initialDataType = {
 const initialData: initialDataType = {
   title: "",
   amount: "",
-  category: "",
+  category: "income",
 };
 
 const CreateExpensesPage = () => {

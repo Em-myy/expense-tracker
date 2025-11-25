@@ -14,7 +14,9 @@ type Props = {
 const ExpenseForm: React.FC<Props> = ({ initialData, onSubmit }) => {
   const [form, setForm] = useState<formType>(initialData);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -40,13 +42,11 @@ const ExpenseForm: React.FC<Props> = ({ initialData, onSubmit }) => {
             name="amount"
             value={form.amount}
           />
-          <input
-            onChange={handleChange}
-            type="text"
-            placeholder="The category"
-            name="category"
-            value={form.category}
-          />
+          <select name="category" value={form.category} onChange={handleChange}>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
           <button type="submit">Submit</button>
         </form>
       </div>
