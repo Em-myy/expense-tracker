@@ -179,65 +179,68 @@ const Dashboard = () => {
       </div>
 
       <div>
-        {monthFilter ? (
-          <div>
-            {monthData.length === 0 ? (
-              <div>No data available for the selected month</div>
-            ) : (
-              <div>
-                {monthData.map((index) => (
-                  <div key={index._id}>
-                    <div>{index.title}</div>
-                    <div>{index.amount}</div>
-                    <div>{index.category}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : null}
+        <div>
+          {monthFilter ? (
+            <div>
+              {monthData.length === 0 ? (
+                <div>No data available for the selected month</div>
+              ) : (
+                <div>
+                  {monthData.map((index) => (
+                    <div key={index._id}>
+                      <div>{index.title}</div>
+                      <div>{index.amount}</div>
+                      <div>{index.category}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
+          <div>{monthFilterMsg}</div>
+        </div>
 
-        {weekFilter ? (
-          <div>
-            {weekData.length === 0 ? (
-              <div>No data available for the selected week</div>
-            ) : (
-              <div>
-                {weekData.map((index) => (
-                  <div key={index._id}>
-                    <div>{index.title}</div>
-                    <div>{index.amount}</div>
-                    <div>{index.category}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : null}
+        <div>
+          {weekFilter ? (
+            <div>
+              {weekData.length === 0 ? (
+                <div>No data available for the selected week</div>
+              ) : (
+                <div>
+                  {weekData.map((index) => (
+                    <div key={index._id}>
+                      <div>{index.title}</div>
+                      <div>{index.amount}</div>
+                      <div>{index.category}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
+          <div>{weekFilterMsg}</div>
+        </div>
 
-        {categoryFilter ? (
-          <div>
-            {categoryData.length === 0 ? (
-              <div>No data available for the selected category</div>
-            ) : (
-              <div>
-                {categoryData.map((index) => (
-                  <div key={index._id}>
-                    <div>{index.title}</div>
-                    <div>{index.amount}</div>
-                    <div>{index.category}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ) : null}
-      </div>
-
-      <div>
-        <div>{monthFilterMsg}</div>
-        <div>{weekFilterMsg}</div>
-        <div>{categoryFilterMsg}</div>
+        <div>
+          {categoryFilter ? (
+            <div>
+              {categoryData.length === 0 ? (
+                <div>No data available for the selected category</div>
+              ) : (
+                <div>
+                  {categoryData.map((index) => (
+                    <div key={index._id}>
+                      <div>{index.title}</div>
+                      <div>{index.amount}</div>
+                      <div>{index.category}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
+          <div>{categoryFilterMsg}</div>
+        </div>
       </div>
     </div>
   );

@@ -80,7 +80,7 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("Error occured in useAuth..... Likely undefined");
+    throw new Error("Error happened in useAuth..... Likely undefined");
   }
   return context;
 };
