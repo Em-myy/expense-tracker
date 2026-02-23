@@ -65,7 +65,7 @@ router.patch("/edit/:id", AuthMiddleware, async (req, res) => {
     const updatedExpense = await Expense.findByIdAndUpdate(
       id,
       { $set: req.body },
-      { new: true }
+      { new: true },
     );
 
     res.status(201).json({ updatedExpense });
@@ -96,7 +96,6 @@ router.get("/filter/month", async (req, res) => {
     const results = await Expense.find({ date: { $gte: start, $lt: end } });
     res.status(200).json({ results });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "Error filtering by month" });
   }
 });
@@ -111,7 +110,6 @@ router.get("/filter/week", async (req, res) => {
 
     res.status(200).json({ results });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "Error filtering by week" });
   }
 });
@@ -124,7 +122,6 @@ router.get("/filter/category", async (req, res) => {
 
     res.status(200).json({ results });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ msg: "Error filtering by category" });
   }
 });
