@@ -130,14 +130,7 @@ router.get("/summary", async (req, res) => {
   const { category } = req.query;
 
   try {
-    const results = await Expense.find({ category });
-
-    const summary = {
-      _id: results._id,
-      title: results.title,
-      amount: results.amount,
-      category: results.category,
-    };
+    const summary = await Expense.find({ category });
 
     res.status(200).json({
       summary,

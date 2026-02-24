@@ -115,7 +115,7 @@ const Dashboard = () => {
       const res = await axiosClient.get(
         `/expense/summary?category=${summaryCategory}`,
       );
-      setSummaryData(res.data.results);
+      setSummaryData(res.data.summary);
       setGetSummary(true);
     } catch (error: any) {
       if (error.response) {
@@ -290,24 +290,22 @@ const Dashboard = () => {
         <div>
           {getSummary ? (
             <div>
-              <div>
-                {summaryData.length === 0 ? (
-                  <div>No summary to show</div>
-                ) : (
-                  <div>
-                    {summaryData.map((index) => (
-                      <div key={index._id}>
-                        <div>{index.title}</div>
-                        <div>{index.amount}</div>
-                        <div>{index.category}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div>{summaryMsg}</div>
+              {summaryData.length === 0 ? (
+                <div>No summary available for the selected category</div>
+              ) : (
+                <div>
+                  {summaryData.map((index) => (
+                    <div key={index._id}>
+                      <div>{index.title}</div>
+                      <div>{index.amount}</div>
+                      <div>{index.category}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : null}
+          <div>{summaryMsg}</div>
         </div>
       </div>
     </div>
