@@ -12,6 +12,13 @@ type expenseType = {
   date: string;
 };
 
+type summaryType = {
+  _id: string;
+  title: string;
+  amount: number;
+  category: string;
+};
+
 const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
   const { logout } = useAuth();
@@ -29,6 +36,10 @@ const Dashboard = () => {
   const [monthFilterMsg, setMonthFilterMsg] = useState<string>("");
   const [weekFilterMsg, setWeekFilterMsg] = useState<string>("");
   const [categoryFilterMsg, setCategoryFilterMsg] = useState<string>("");
+  const [summaryCategory, setSummaryCategory] = useState<string>("");
+  const [summaryData, setSummaryData] = useState<summaryType[]>([]);
+  const [getSummary, setGetSummary] = useState<boolean>(false);
+  const [summaryMsg, setSummaryMsg] = useState<string>("");
 
   const handleDetails = (id: string) => {
     navigate(`/expensesDetails/${id}`);
@@ -96,6 +107,21 @@ const Dashboard = () => {
         setCategoryFilterMsg(error.response.data.msg);
       }
       setCategoryFilter(true);
+    }
+  };
+
+  const handleSummaryCategory = async (): Promise<void> => {
+    try {
+      const res = await axiosClient.get(
+        `/expense/summary?category=${summaryCategory}`,
+      );
+      setSummaryData(res.data.results);
+      setGetSummary(true);
+    } catch (error: any) {
+      if (error.response) {
+        setSummaryMsg(error.response.data.msg);
+      }
+      setGetSummary(true);
     }
   };
 
@@ -240,6 +266,48 @@ const Dashboard = () => {
             </div>
           ) : null}
           <div>{categoryFilterMsg}</div>
+        </div>
+
+        {/* Graph Part */}
+        <div>
+          <h2>Get Summary</h2>
+          <div>
+            <select
+              value={summaryCategory}
+              onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+                setSummaryCategory(event.target.value)
+              }
+            >
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+            <button type="button" onClick={handleSummaryCategory}>
+              Get Summary
+            </button>
+          </div>
+        </div>
+
+        <div>
+          {getSummary ? (
+            <div>
+              <div>
+                {summaryData.length === 0 ? (
+                  <div>No summary to show</div>
+                ) : (
+                  <div>
+                    {summaryData.map((index) => (
+                      <div key={index._id}>
+                        <div>{index.title}</div>
+                        <div>{index.amount}</div>
+                        <div>{index.category}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>{summaryMsg}</div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

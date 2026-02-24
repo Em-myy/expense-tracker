@@ -82,7 +82,7 @@ router.delete("/delete/:id", AuthMiddleware, async (req, res) => {
     res.status(200).json({ msg: "Expense deleted successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Error deleting expense" });
+    res.status(404).json({ msg: "Error deleting expense" });
   }
 });
 
@@ -96,7 +96,7 @@ router.get("/filter/month", async (req, res) => {
     const results = await Expense.find({ date: { $gte: start, $lt: end } });
     res.status(200).json({ results });
   } catch (error) {
-    res.status(500).json({ msg: "Error filtering by month" });
+    res.status(404).json({ msg: "Error filtering by month" });
   }
 });
 
@@ -110,7 +110,7 @@ router.get("/filter/week", async (req, res) => {
 
     res.status(200).json({ results });
   } catch (error) {
-    res.status(500).json({ msg: "Error filtering by week" });
+    res.status(404).json({ msg: "Error filtering by week" });
   }
 });
 
@@ -122,7 +122,28 @@ router.get("/filter/category", async (req, res) => {
 
     res.status(200).json({ results });
   } catch (error) {
-    res.status(500).json({ msg: "Error filtering by category" });
+    res.status(404).json({ msg: "Error filtering by category" });
+  }
+});
+
+router.get("/summary", async (req, res) => {
+  const { category } = req.query;
+
+  try {
+    const results = await Expense.find({ category });
+
+    const summary = {
+      _id: results._id,
+      title: results.title,
+      amount: results.amount,
+      category: results.category,
+    };
+
+    res.status(200).json({
+      summary,
+    });
+  } catch (error) {
+    res.status(404).json({ msg: "Error getting summary" });
   }
 });
 
