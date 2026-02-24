@@ -2,6 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axios";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 type expenseType = {
   _id: string;
@@ -17,6 +26,7 @@ type summaryType = {
   title: string;
   amount: number;
   category: string;
+  date: string;
 };
 
 const Dashboard = () => {
@@ -127,6 +137,25 @@ const Dashboard = () => {
 
   const handleVisibility = () => {
     setIsVisible((prev) => !prev);
+  };
+
+  const formatDate = (dateString: any) => {
+    if (!dateString) return ""; // Handle undefined or null safely
+
+    const date = new Date(String(dateString));
+    if (isNaN(date.getTime())) return String(dateString);
+
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  const formatCurrency = (value: any) => {
+    // If value is undefined or not a number, default to 0
+    const safeValue = Number(value) || 0;
+
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "NGN",
+    }).format(safeValue);
   };
 
   return (
@@ -293,14 +322,36 @@ const Dashboard = () => {
               {summaryData.length === 0 ? (
                 <div>No summary available for the selected category</div>
               ) : (
-                <div>
-                  {summaryData.map((index) => (
-                    <div key={index._id}>
-                      <div>{index.title}</div>
-                      <div>{index.amount}</div>
-                      <div>{index.category}</div>
-                    </div>
-                  ))}
+                <div style={{ width: "99%", height: 400 }}>
+                  <ResponsiveContainer
+                    width="99%"
+                    height="100%"
+                    minHeight={400}
+                    minWidth={1}
+                  >
+                    <LineChart
+                      data={summaryData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" tickFormatter={formatDate} />
+                      <YAxis tickFormatter={formatCurrency} />
+                      <Tooltip
+                        formatter={(value: any) => [
+                          formatCurrency(value),
+                          "Spent",
+                        ]}
+                        labelFormatter={(label: any) => formatDate(label)}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="amount"
+                        stroke="#8884d8"
+                        activeDot={{ r: 8 }}
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               )}
             </div>
