@@ -11,6 +11,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { FaBars } from "react-icons/fa";
+import { IoCloseSharp } from "react-icons/io5";
 
 type expenseType = {
   _id: string;
@@ -140,7 +142,7 @@ const Dashboard = () => {
   };
 
   const formatDate = (dateString: any) => {
-    if (!dateString) return ""; // Handle undefined or null safely
+    if (!dateString) return "";
 
     const date = new Date(String(dateString));
     if (isNaN(date.getTime())) return String(dateString);
@@ -161,8 +163,11 @@ const Dashboard = () => {
     <div>
       <div>Welcome to your dashboard</div>
       <div>
+        <button onClick={handleLogout}>Logout</button>
         <div>
-          <div onClick={handleVisibility}>Show Hidden buttons</div>
+          <div onClick={handleVisibility}>
+            {isVisible ? <IoCloseSharp /> : <FaBars />}
+          </div>
           {isVisible ? (
             <div>
               <Link to="/createExpenses">Create New Expenses</Link>
@@ -172,7 +177,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-      <button onClick={handleLogout}>Logout</button>
+
       <div>
         {totalExpenses.map((index) => (
           <div key={index._id}>
