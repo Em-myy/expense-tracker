@@ -149,7 +149,6 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (value: any) => {
-    // If value is undefined or not a number, default to 0
     const safeValue = Number(value) || 0;
 
     return new Intl.NumberFormat("en-US", {
@@ -331,7 +330,7 @@ const Dashboard = () => {
                   >
                     <LineChart
                       data={summaryData}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      margin={{ top: 20, right: 10, left: 100, bottom: 5 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" tickFormatter={formatDate} />
