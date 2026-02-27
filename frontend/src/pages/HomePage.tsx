@@ -227,11 +227,11 @@ const HomePage = () => {
           <p className="text-slate-400 mb-8 max-w-md mx-auto">
             Register today and take your first step toward financial clarity.
           </p>
-          <Link
-            to="/register"
-            className="glow-btn px-10 py-4 rounded-xl bg-amber-500 text-slate-900 font-bold text-lg tracking-wide"
-          >
-            Create Free Account
+
+          <Link to="/register">
+            <button className="glow-btn px-10 py-4 rounded-xl bg-amber-500 text-slate-900 font-bold text-lg tracking-wide cursor-pointer">
+              Create Free Account
+            </button>
           </Link>
         </div>
       </main>
