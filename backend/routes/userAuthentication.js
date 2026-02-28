@@ -46,7 +46,7 @@ router.post("/register", async (req, res) => {
     path: "/",
   });
 
-  res.json({ msg: "Registered Successfully" });
+  return res.json({ msg: "Registered Successfully" });
 });
 
 router.post("/login", async (req, res) => {
@@ -84,11 +84,11 @@ router.post("/login", async (req, res) => {
     path: "/",
   });
 
-  res.json({ msg: "Login Successful" });
+  return res.json({ msg: "Login Successful" });
 });
 
 router.get("/profile", AuthMiddleware, async (req, res) => {
-  res.json({ user: req.user });
+  return res.json({ user: req.user });
 });
 
 router.post("/refresh", async (req, res) => {
@@ -112,9 +112,9 @@ router.post("/refresh", async (req, res) => {
       path: "/",
     });
 
-    res.json({ user });
+    return res.json({ user });
   } catch (error) {
-    res.status(403).json({ msg: "Invalid refresh token" });
+    return res.status(403).json({ msg: "Invalid refresh token" });
   }
 });
 
@@ -132,7 +132,7 @@ router.post("/logout", (req, res) => {
     path: "/",
   });
 
-  res.json({ msg: "Logged out successfully" });
+  return res.json({ msg: "Logged out successfully" });
 });
 
 export default router;

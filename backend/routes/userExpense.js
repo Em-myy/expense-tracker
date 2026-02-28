@@ -4,22 +4,6 @@ import { AuthMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-const getWeekRange = (date) => {
-  const newDate = new Date(date);
-  const newDay = newDate.getDay();
-
-  const diff = (newDay === 0 ? -6 : 1) - newDay;
-
-  const start = new Date(newDate);
-  start.setDate(newDate.getDate() + diff);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(start);
-  end.setDate(start.getDate() + 7);
-
-  return { start, end };
-};
-
 router.post("/create", AuthMiddleware, async (req, res) => {
   const { title, amount, category } = req.body;
 
@@ -31,19 +15,19 @@ router.post("/create", AuthMiddleware, async (req, res) => {
       category,
     });
     await newExpenses.save();
-    res.json({ msg: "Expenses created successfully" });
+    return res.json({ msg: "Expenses created successfully" });
   } catch {
-    res.json({ msg: "Error in registering expenses" });
+    return res.json({ msg: "Error in registering expenses" });
   }
 });
 
 router.get("/getExpenses", AuthMiddleware, async (req, res) => {
   try {
     const expenses = await Expense.find({ userId: req.user.id });
-    res.json({ expenses });
+    return res.json({ expenses });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ msg: "Error getting expenses" });
+    return res.status(404).json({ msg: "Error getting expenses" });
   }
 });
 
@@ -51,10 +35,10 @@ router.get("/details/:id", AuthMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
     const expense = await Expense.findById(id);
-    res.status(201).json({ expense });
+    return res.status(201).json({ expense });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ msg: "Error getting details" });
+    return res.status(404).json({ msg: "Error getting details" });
   }
 });
 
@@ -68,10 +52,10 @@ router.patch("/edit/:id", AuthMiddleware, async (req, res) => {
       { new: true },
     );
 
-    res.status(201).json({ updatedExpense });
+    return res.status(201).json({ updatedExpense });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ msg: "Error updating expense" });
+    return res.status(404).json({ msg: "Error updating expense" });
   }
 });
 
@@ -79,10 +63,10 @@ router.delete("/delete/:id", AuthMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
     await Expense.findByIdAndDelete(id);
-    res.status(200).json({ msg: "Expense deleted successfully" });
+    return res.status(200).json({ msg: "Expense deleted successfully" });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ msg: "Error deleting expense" });
+    return res.status(404).json({ msg: "Error deleting expense" });
   }
 });
 
@@ -181,14 +165,14 @@ router.get("/filter", async (req, res) => {
     const results = await Expense.find(query).sort({ date: -1 });
 
     if (results.length === 0) {
-      res
+      return res
         .status(404)
         .json({ msg: "No transaction found for the selected filter" });
     }
 
-    res.status(200).json({ results });
+    return res.status(200).json({ results });
   } catch (error) {
-    res.status(500).json({ msg: "Error filtering expenses" });
+    return res.status(500).json({ msg: "Error filtering expenses" });
   }
 });
 
@@ -198,11 +182,11 @@ router.get("/summary", async (req, res) => {
   try {
     const summary = await Expense.find({ category });
 
-    res.status(200).json({
+    return res.status(200).json({
       summary,
     });
   } catch (error) {
-    res.status(404).json({ msg: "Error getting summary" });
+    return res.status(404).json({ msg: "Error getting summary" });
   }
 });
 

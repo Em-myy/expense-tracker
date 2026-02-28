@@ -522,14 +522,14 @@ const Dashboard = () => {
                     setFilterMonth(e.target.value);
                     if (e.target.value) setFilterDate("");
                   }}
-                  className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200"
+                  className="w-full bg-slate-800/60 border border-slate-700 rounded-xl cursor-pointer px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200"
                 />
                 {filterMonth && (
                   <button
                     onClick={() => setFilterMonth("")}
-                    className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                    className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
                   >
-                    <MdClear className="text-sm" /> Clear
+                    <MdClear className="text-sm cursor-pointer" /> Clear
                   </button>
                 )}
               </div>
@@ -550,7 +550,7 @@ const Dashboard = () => {
                     if (e.target.value) setFilterMonth("");
                   }}
                   disabled={!!filterMonth}
-                  className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full bg-slate-800/60 border border-slate-700 rounded-xl cursor-pointer px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                 />
                 {filterMonth && (
                   <p className="text-xs text-slate-600 italic">
@@ -560,9 +560,9 @@ const Dashboard = () => {
                 {filterDate && !filterMonth && (
                   <button
                     onClick={() => setFilterDate("")}
-                    className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                    className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
                   >
-                    <MdClear className="text-sm" /> Clear
+                    <MdClear className="text-sm cursor-pointer" /> Clear
                   </button>
                 )}
               </div>
@@ -583,13 +583,13 @@ const Dashboard = () => {
                         filterCategory === "income" ? "" : "income",
                       )
                     }
-                    className={`flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                    className={`flex items-center justify-center gap-1 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-all duration-200 ${
                       filterCategory === "income"
                         ? "bg-green-500/20 border border-green-500/40 text-green-400"
                         : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    <BsArrowUpCircleFill className="text-xs" />
+                    <BsArrowUpCircleFill className="text-xs cursor-pointer" />
                     Income
                   </button>
                   <button
@@ -599,19 +599,19 @@ const Dashboard = () => {
                         filterCategory === "expense" ? "" : "expense",
                       )
                     }
-                    className={`flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                    className={`flex items-center justify-center gap-1 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-all duration-200 ${
                       filterCategory === "expense"
                         ? "bg-red-500/20 border border-red-500/40 text-red-400"
                         : "text-slate-500 hover:text-slate-300"
                     }`}
                   >
-                    <BsArrowDownCircleFill className="text-xs" />
+                    <BsArrowDownCircleFill className="text-xs cursor-pointer" />
                     Expense
                   </button>
                   <button
                     type="button"
                     onClick={() => setFilterCategory("")}
-                    className={`flex items-center justify-center py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                    className={`flex items-center justify-center py-2 rounded-lg cursor-pointer text-xs font-semibold transition-all duration-200 ${
                       filterCategory === ""
                         ? "bg-slate-700 border border-slate-600 text-slate-300"
                         : "text-slate-500 hover:text-slate-300"
@@ -645,7 +645,7 @@ const Dashboard = () => {
                   filterLoading ||
                   (!filterMonth && !filterDate && !filterCategory)
                 }
-                className="glow-btn flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="glow-btn flex items-center gap-2 px-6 py-2.5 rounded-xl cursor-pointer bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {filterLoading ? (
                   <>
@@ -663,7 +663,7 @@ const Dashboard = () => {
               {filterApplied && (
                 <button
                   onClick={handleClearFilters}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-slate-700 text-slate-400 font-semibold text-sm hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl cursor-pointer border border-slate-700 text-slate-400 font-semibold text-sm hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200"
                 >
                   <MdClear className="text-base" />
                   Clear All
@@ -690,7 +690,7 @@ const Dashboard = () => {
                 </p>
                 <button
                   onClick={handleClearFilters}
-                  className="text-xs text-slate-500 hover:text-red-400 flex items-center gap-1 transition-colors"
+                  className="text-xs text-slate-500 hover:text-red-400 flex items-center gap-1 transition-colors cursor-pointer"
                 >
                   <MdClear className="text-sm" /> Clear
                 </button>
@@ -746,7 +746,7 @@ const Dashboard = () => {
                       </span>
                       <button
                         onClick={() => handleDetails(expense._id)}
-                        className="text-xs text-slate-500 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                        className="text-xs text-slate-500 px-3 py-1.5 rounded-lg cursor-pointer border border-slate-700 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200 opacity-0 group-hover:opacity-100"
                       >
                         View →
                       </button>
@@ -775,7 +775,7 @@ const Dashboard = () => {
                 <button
                   type="button"
                   onClick={() => setSummaryCategory("income")}
-                  className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                  className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-all duration-200 ${
                     summaryCategory === "income"
                       ? "bg-green-500/20 border border-green-500/40 text-green-400"
                       : "text-slate-500 hover:text-slate-300"
@@ -787,7 +787,7 @@ const Dashboard = () => {
                 <button
                   type="button"
                   onClick={() => setSummaryCategory("expense")}
-                  className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                  className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg cursor-pointer text-xs font-semibold transition-all duration-200 ${
                     summaryCategory === "expense"
                       ? "bg-red-500/20 border border-red-500/40 text-red-400"
                       : "text-slate-500 hover:text-slate-300"
@@ -801,7 +801,7 @@ const Dashboard = () => {
               <button
                 onClick={handleSummaryCategory}
                 disabled={summaryLoading}
-                className="glow-btn flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                className="glow-btn flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {summaryLoading ? (
                   <>
