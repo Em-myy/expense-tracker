@@ -19,6 +19,7 @@ import {
   MdCategory,
   MdDateRange,
   MdBarChart,
+  MdClear,
 } from "react-icons/md";
 import { BsArrowUpCircleFill, BsArrowDownCircleFill } from "react-icons/bs";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -44,24 +45,20 @@ const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [monthDate, setMonthDate] = useState<string>("");
-  const [monthData, setMonthData] = useState<expenseType[]>([]);
-  const [dayDate, setDayDate] = useState<string>("");
-  const [dayData, setDayData] = useState<expenseType[]>([]);
-  const [isCategory, setIsCategory] = useState<string>("income");
-  const [categoryData, setCategoryData] = useState<expenseType[]>([]);
-  const [monthFilter, setMonthFilter] = useState<boolean>(false);
-  const [dayFilter, setDayFilter] = useState<boolean>(false);
-  const [categoryFilter, setCategoryFilter] = useState<boolean>(false);
-  const [monthFilterMsg, setMonthFilterMsg] = useState<string>("");
-  const [dayFilterMsg, setDayFilterMsg] = useState<string>("");
-  const [categoryFilterMsg, setCategoryFilterMsg] = useState<string>("");
+
+  const [filterMonth, setFilterMonth] = useState<string>("");
+  const [filterDate, setFilterDate] = useState<string>("");
+  const [filterCategory, setFilterCategory] = useState<string>("");
+  const [filterResults, setFilterResults] = useState<expenseType[]>([]);
+  const [filterApplied, setFilterApplied] = useState<boolean>(false);
+  const [filterMsg, setFilterMsg] = useState<string>("");
+  const [filterLoading, setFilterLoading] = useState<boolean>(false);
+
   const [summaryCategory, setSummaryCategory] = useState<string>("income");
   const [summaryData, setSummaryData] = useState<summaryType[]>([]);
   const [getSummary, setGetSummary] = useState<boolean>(false);
   const [summaryMsg, setSummaryMsg] = useState<string>("");
   const [summaryLoading, setSummaryLoading] = useState<boolean>(false);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   const handleDetails = (id: string) => {
     navigate(`/expensesDetails/${id}`);
@@ -84,48 +81,49 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  const handleMonthFilter = async (): Promise<void> => {
-    const [year, month] = monthDate.split("-");
-    setMonthFilterMsg("");
+  const handleFilter = async (): Promise<void> => {
+    setFilterMsg("");
+    setFilterLoading(true);
+
+    const params = new URLSearchParams();
+
+    if (filterMonth) {
+      const [year, month] = filterMonth.split("-");
+
+      params.append("year", year);
+      params.append("month", month);
+    }
+
+    if (filterDate && !filterMonth) {
+      params.append("date", filterDate);
+    }
+
+    if (filterCategory) {
+      params.append("category", filterCategory);
+    }
+
     try {
-      const res = await axiosClient.get(
-        `/expense/filter/month?year=${year}&month=${month}`,
-      );
-      setMonthData(res.data.results);
-      setMonthFilter(true);
-      setActiveFilter("month");
+      const res = await axiosClient.get(`/expense/filter?${params.toString()}`);
+
+      setFilterResults(res.data.results);
+      setFilterApplied(true);
     } catch (error: any) {
-      if (error.response) setMonthFilterMsg(error.response.data.msg);
-      setMonthFilter(true);
+      if (error.response) {
+        setFilterMsg(error.response.data.msg);
+        setFilterApplied(true);
+      }
+    } finally {
+      setFilterLoading(false);
     }
   };
 
-  const handleDayFilter = async (): Promise<void> => {
-    setDayFilterMsg("");
-    try {
-      const res = await axiosClient.get(`/expense/filter/date?date=${dayDate}`);
-      setDayData(res.data.results);
-      setDayFilter(true);
-      setActiveFilter("day");
-    } catch (error: any) {
-      if (error.response) setDayFilterMsg(error.response.data.msg);
-      setDayFilter(true);
-    }
-  };
-
-  const handleCategoryFilter = async (): Promise<void> => {
-    setCategoryFilterMsg("");
-    try {
-      const res = await axiosClient.get(
-        `/expense/filter/category?category=${isCategory}`,
-      );
-      setCategoryData(res.data.results);
-      setCategoryFilter(true);
-      setActiveFilter("category");
-    } catch (error: any) {
-      if (error.response) setCategoryFilterMsg(error.response.data.msg);
-      setCategoryFilter(true);
-    }
+  const handleClearFilters = () => {
+    setFilterMonth("");
+    setFilterDate("");
+    setFilterCategory("");
+    setFilterResults([]);
+    setFilterApplied(false);
+    setFilterMsg("");
   };
 
   const handleSummaryCategory = async (): Promise<void> => {
@@ -169,24 +167,15 @@ const Dashboard = () => {
     .reduce((sum, e) => sum + Number(e.amount), 0);
   const netBalance = totalIncome - totalExpense;
 
-  // Active filter results
-  const activeResults =
-    activeFilter === "month"
-      ? monthData
-      : activeFilter === "day"
-        ? dayData
-        : activeFilter === "category"
-          ? categoryData
-          : [];
-
-  const activeMsg =
-    activeFilter === "month"
-      ? monthFilterMsg
-      : activeFilter === "day"
-        ? dayFilterMsg
-        : activeFilter === "category"
-          ? categoryFilterMsg
-          : "";
+  const activeFilterTags = [
+    filterMonth &&
+      `Month: ${new Date(filterMonth + "-01").toLocaleDateString("en-NG", { month: "long", year: "numeric" })}`,
+    filterDate &&
+      !filterMonth &&
+      `Date: ${new Date(filterDate).toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" })}`,
+    filterCategory &&
+      `Category: ${filterCategory.charAt(0).toUpperCase() + filterCategory.slice(1)}`,
+  ].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white overflow-x-hidden">
@@ -511,92 +500,180 @@ const Dashboard = () => {
             <h2 className="text-lg font-bold text-white">
               Filter Transactions
             </h2>
+            <span className="text-xs text-slate-600 ml-1">
+              — use one, two, or all three together
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Filter by Month */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <MdCalendarToday className="text-amber-400" />
-                <p className="text-sm font-semibold text-white">By Month</p>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+              {/* Filter by Month */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <MdCalendarToday className="text-amber-400 text-sm" />
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    By Month
+                  </p>
+                </div>
+                <input
+                  type="month"
+                  value={filterMonth}
+                  onChange={(e) => {
+                    setFilterMonth(e.target.value);
+                    if (e.target.value) setFilterDate("");
+                  }}
+                  className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200"
+                />
+                {filterMonth && (
+                  <button
+                    onClick={() => setFilterMonth("")}
+                    className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                  >
+                    <MdClear className="text-sm" /> Clear
+                  </button>
+                )}
               </div>
-              <input
-                type="month"
-                value={monthDate}
-                onChange={(e) => setMonthDate(e.target.value)}
-                className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200 mb-3"
-              />
-              <button
-                onClick={handleMonthFilter}
-                className="w-full py-2.5 rounded-xl cursor-pointer bg-amber-500/15 border border-amber-500/30 text-amber-400 font-semibold text-sm hover:bg-amber-500/25 transition-all duration-200"
-              >
-                Apply Filter
-              </button>
+
+              {/* Filter by Date */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <MdDateRange className="text-amber-400 text-sm" />
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    By Date
+                  </p>
+                </div>
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => {
+                    setFilterDate(e.target.value);
+                    if (e.target.value) setFilterMonth("");
+                  }}
+                  disabled={!!filterMonth}
+                  className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                />
+                {filterMonth && (
+                  <p className="text-xs text-slate-600 italic">
+                    Clear month to use date filter
+                  </p>
+                )}
+                {filterDate && !filterMonth && (
+                  <button
+                    onClick={() => setFilterDate("")}
+                    className="text-xs text-slate-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                  >
+                    <MdClear className="text-sm" /> Clear
+                  </button>
+                )}
+              </div>
+
+              {/* Filter by Category */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <MdCategory className="text-amber-400 text-sm" />
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    By Category
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2 p-1 rounded-xl bg-slate-800/60 border border-slate-700">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFilterCategory(
+                        filterCategory === "income" ? "" : "income",
+                      )
+                    }
+                    className={`flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                      filterCategory === "income"
+                        ? "bg-green-500/20 border border-green-500/40 text-green-400"
+                        : "text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    <BsArrowUpCircleFill className="text-xs" />
+                    Income
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFilterCategory(
+                        filterCategory === "expense" ? "" : "expense",
+                      )
+                    }
+                    className={`flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                      filterCategory === "expense"
+                        ? "bg-red-500/20 border border-red-500/40 text-red-400"
+                        : "text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    <BsArrowDownCircleFill className="text-xs" />
+                    Expense
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFilterCategory("")}
+                    className={`flex items-center justify-center py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                      filterCategory === ""
+                        ? "bg-slate-700 border border-slate-600 text-slate-300"
+                        : "text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    All
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Filter by Week/Date */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <MdDateRange className="text-amber-400" />
-                <p className="text-sm font-semibold text-white">By Date</p>
+            {/* Active filter tags */}
+            {activeFilterTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-5">
+                {activeFilterTags.map((tag) => (
+                  <span
+                    key={tag as string}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 border border-amber-500/25 text-amber-400"
+                  >
+                    {tag as string}
+                  </span>
+                ))}
               </div>
-              <input
-                type="date"
-                value={dayDate}
-                onChange={(e) => setDayDate(e.target.value)}
-                className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200 mb-3"
-              />
-              <button
-                onClick={handleDayFilter}
-                className="w-full py-2.5 rounded-xl cursor-pointer bg-amber-500/15 border border-amber-500/30 text-amber-400 font-semibold text-sm hover:bg-amber-500/25 transition-all duration-200"
-              >
-                Apply Filter
-              </button>
-            </div>
+            )}
 
-            {/* Filter by Category */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <MdCategory className="text-amber-400" />
-                <p className="text-sm font-semibold text-white">By Category</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-800/60 border border-slate-700 mb-3">
-                <button
-                  type="button"
-                  onClick={() => setIsCategory("income")}
-                  className={`flex items-center justify-center cursor-pointer gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                    isCategory === "income"
-                      ? "bg-green-500/20 border border-green-500/40 text-green-400"
-                      : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  <BsArrowUpCircleFill />
-                  Income
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsCategory("expense")}
-                  className={`flex items-center justify-center cursor-pointer gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                    isCategory === "expense"
-                      ? "bg-red-500/20 border border-red-500/40 text-red-400"
-                      : "text-slate-500 hover:text-slate-300"
-                  }`}
-                >
-                  <BsArrowDownCircleFill />
-                  Expense
-                </button>
-              </div>
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-3">
               <button
-                onClick={handleCategoryFilter}
-                className="w-full py-2.5 rounded-xl cursor-pointer bg-amber-500/15 border border-amber-500/30 text-amber-400 font-semibold text-sm hover:bg-amber-500/25 transition-all duration-200"
+                onClick={handleFilter}
+                disabled={
+                  filterLoading ||
+                  (!filterMonth && !filterDate && !filterCategory)
+                }
+                className="glow-btn flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Apply Filter
+                {filterLoading ? (
+                  <>
+                    <AiOutlineLoading3Quarters className="animate-spin text-base" />
+                    Filtering...
+                  </>
+                ) : (
+                  <>
+                    <MdFilterList className="text-base" />
+                    Apply Filter
+                  </>
+                )}
               </button>
+
+              {filterApplied && (
+                <button
+                  onClick={handleClearFilters}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl border border-slate-700 text-slate-400 font-semibold text-sm hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/5 transition-all duration-200"
+                >
+                  <MdClear className="text-base" />
+                  Clear All
+                </button>
+              )}
             </div>
           </div>
 
           {/* Filter Results */}
-          {(monthFilter || dayFilter || categoryFilter) && activeFilter && (
+          {filterApplied && (
             <div
               className="mt-5 rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden"
               style={{ animation: "slideUp 0.4s ease both" }}
@@ -608,38 +685,38 @@ const Dashboard = () => {
                     className="ml-2 text-xs text-slate-500"
                     style={{ fontFamily: "'DM Mono', monospace" }}
                   >
-                    ({activeResults.length} found)
+                    ({filterResults.length} found)
                   </span>
                 </p>
                 <button
-                  onClick={() => setActiveFilter(null)}
-                  className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                  onClick={handleClearFilters}
+                  className="text-xs text-slate-500 hover:text-red-400 flex items-center gap-1 transition-colors"
                 >
-                  Clear ✕
+                  <MdClear className="text-sm" /> Clear
                 </button>
               </div>
 
-              {activeMsg ? (
-                <div className="px-5 py-6 text-center text-slate-500 text-sm">
-                  {activeMsg}
+              {filterMsg ? (
+                <div className="px-5 py-8 text-center text-slate-500 text-sm">
+                  {filterMsg}
                 </div>
-              ) : activeResults.length === 0 ? (
-                <div className="px-5 py-6 text-center text-slate-500 text-sm">
-                  No transactions found for this filter.
+              ) : filterResults.length === 0 ? (
+                <div className="px-5 py-8 text-center">
+                  <p className="text-3xl mb-2">🔍</p>
+                  <p className="text-slate-500 text-sm">
+                    No transactions found for the selected filters.
+                  </p>
                 </div>
               ) : (
-                activeResults.map((expense) => (
+                filterResults.map((expense, i) => (
                   <div
                     key={expense._id}
                     className="flex items-center justify-between px-5 py-4 border-b border-slate-800/60 last:border-0 hover:bg-slate-800/40 transition-colors duration-150 group"
+                    style={{ animation: `slideUp 0.3s ease ${i * 0.04}s both` }}
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-8 h-8 rounded-xl flex items-center justify-center border shrink-0 ${
-                          expense.category === "income"
-                            ? "bg-green-500/10 border-green-500/30"
-                            : "bg-red-500/10 border-red-500/30"
-                        }`}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center border shrink-0 ${expense.category === "income" ? "bg-green-500/10 border-green-500/30" : "bg-red-500/10 border-red-500/30"}`}
                       >
                         {expense.category === "income" ? (
                           <BsArrowUpCircleFill className="text-green-400 text-xs" />
@@ -660,16 +737,20 @@ const Dashboard = () => {
                         </p>
                       </div>
                     </div>
-                    <span
-                      className={`text-sm font-bold ${
-                        expense.category === "income"
-                          ? "text-green-400"
-                          : "text-red-400"
-                      }`}
-                    >
-                      {expense.category === "income" ? "+" : "-"}
-                      {formatCurrency(expense.amount)}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`text-sm font-bold ${expense.category === "income" ? "text-green-400" : "text-red-400"}`}
+                      >
+                        {expense.category === "income" ? "+" : "-"}
+                        {formatCurrency(expense.amount)}
+                      </span>
+                      <button
+                        onClick={() => handleDetails(expense._id)}
+                        className="text-xs text-slate-500 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-amber-500/50 hover:text-amber-400 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                      >
+                        View →
+                      </button>
+                    </div>
                   </div>
                 ))
               )}

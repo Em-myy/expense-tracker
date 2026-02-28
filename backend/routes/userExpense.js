@@ -86,6 +86,7 @@ router.delete("/delete/:id", AuthMiddleware, async (req, res) => {
   }
 });
 
+/*
 router.get("/filter/month", async (req, res) => {
   const { month, year } = req.query;
 
@@ -146,6 +147,48 @@ router.get("/filter/category", async (req, res) => {
     res.status(200).json({ results });
   } catch (error) {
     res.status(404).json({ msg: "Error filtering by category" });
+  }
+});
+*/
+
+router.get("/filter", async (req, res) => {
+  const { year, month, date, category } = req.query;
+
+  try {
+    const query = {};
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (year && month) {
+      const start = new Date(year, month - 1, 1);
+      const end = new Date(year, month, 1);
+
+      query.date = { $gte: start, $lte: end };
+    }
+
+    if (date && !month) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+
+      query.date = { $gte: start, $lte: end };
+    }
+
+    const results = await Expense.find(query).sort({ date: -1 });
+
+    if (results.length === 0) {
+      res
+        .status(404)
+        .json({ msg: "No transaction found for the selected filter" });
+    }
+
+    res.status(200).json({ results });
+  } catch (error) {
+    res.status(500).json({ msg: "Error filtering expenses" });
   }
 });
 
