@@ -46,8 +46,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [monthDate, setMonthDate] = useState<string>("");
   const [monthData, setMonthData] = useState<expenseType[]>([]);
-  const [weekDate, setWeekDate] = useState<string>("");
-  const [weekData, setWeekData] = useState<expenseType[]>([]);
+  const [dayDate, setDayDate] = useState<string>("");
+  const [dayData, setDayData] = useState<expenseType[]>([]);
   const [isCategory, setIsCategory] = useState<string>("income");
   const [categoryData, setCategoryData] = useState<expenseType[]>([]);
   const [monthFilter, setMonthFilter] = useState<boolean>(false);
@@ -101,17 +101,15 @@ const Dashboard = () => {
   };
 
   const handleDayFilter = async (): Promise<void> => {
-    setWeekFilterMsg("");
+    setDayFilterMsg("");
     try {
-      const res = await axiosClient.get(
-        `/expense/filter/week?date=${weekDate}`,
-      );
-      setWeekData(res.data.results);
-      setWeekFilter(true);
-      setActiveFilter("week");
+      const res = await axiosClient.get(`/expense/filter/date?date=${dayDate}`);
+      setDayData(res.data.results);
+      setDayFilter(true);
+      setActiveFilter("day");
     } catch (error: any) {
-      if (error.response) setWeekFilterMsg(error.response.data.msg);
-      setWeekFilter(true);
+      if (error.response) setDayFilterMsg(error.response.data.msg);
+      setDayFilter(true);
     }
   };
 
@@ -175,8 +173,8 @@ const Dashboard = () => {
   const activeResults =
     activeFilter === "month"
       ? monthData
-      : activeFilter === "week"
-        ? weekData
+      : activeFilter === "day"
+        ? dayData
         : activeFilter === "category"
           ? categoryData
           : [];
@@ -184,8 +182,8 @@ const Dashboard = () => {
   const activeMsg =
     activeFilter === "month"
       ? monthFilterMsg
-      : activeFilter === "week"
-        ? weekFilterMsg
+      : activeFilter === "day"
+        ? dayFilterMsg
         : activeFilter === "category"
           ? categoryFilterMsg
           : "";
@@ -544,12 +542,12 @@ const Dashboard = () => {
               </div>
               <input
                 type="date"
-                value={weekDate}
-                onChange={(e) => setWeekDate(e.target.value)}
+                value={dayDate}
+                onChange={(e) => setDayDate(e.target.value)}
                 className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all duration-200 mb-3"
               />
               <button
-                onClick={handleWeekFilter}
+                onClick={handleDayFilter}
                 className="w-full py-2.5 rounded-xl cursor-pointer bg-amber-500/15 border border-amber-500/30 text-amber-400 font-semibold text-sm hover:bg-amber-500/25 transition-all duration-200"
               >
                 Apply Filter
@@ -598,7 +596,7 @@ const Dashboard = () => {
           </div>
 
           {/* Filter Results */}
-          {(monthFilter || weekFilter || categoryFilter) && activeFilter && (
+          {(monthFilter || dayFilter || categoryFilter) && activeFilter && (
             <div
               className="mt-5 rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden"
               style={{ animation: "slideUp 0.4s ease both" }}
