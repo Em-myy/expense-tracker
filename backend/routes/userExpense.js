@@ -94,23 +94,40 @@ router.get("/filter/month", async (req, res) => {
     const end = new Date(year, month, 1);
 
     const results = await Expense.find({ date: { $gte: start, $lt: end } });
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ msg: "No transactions found for this date" });
+    }
+
     res.status(200).json({ results });
   } catch (error) {
     res.status(404).json({ msg: "Error filtering by month" });
   }
 });
 
-router.get("/filter/week", async (req, res) => {
+router.get("/filter/date", async (req, res) => {
   const { date } = req.query;
 
   try {
-    const { start, end } = getWeekRange(date);
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
 
     const results = await Expense.find({ date: { $gte: start, $lt: end } });
 
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ msg: "No transactions found for this date" });
+    }
+
     res.status(200).json({ results });
   } catch (error) {
-    res.status(404).json({ msg: "Error filtering by week" });
+    res.status(404).json({ msg: "Error filtering by date" });
   }
 });
 
@@ -119,6 +136,12 @@ router.get("/filter/category", async (req, res) => {
 
   try {
     const results = await Expense.find({ category });
+
+    if (results.length === 0) {
+      return res
+        .status(404)
+        .json({ msg: "No transactions found for this date" });
+    }
 
     res.status(200).json({ results });
   } catch (error) {
