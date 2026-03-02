@@ -41,7 +41,7 @@ type summaryType = {
   date: string;
 };
 
-const Dashboard = () => {sunday
+const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
   const { logout } = useAuth();
   const navigate = useNavigate();
