@@ -76,6 +76,32 @@ const Dashboard = () => {
     fetchExpenses();
   }, []);
 
+  useEffect(() => {
+    if (!getSummary) {
+      return;
+    }
+
+    const fetchSummary = async () => {
+      setSummaryMsg("");
+      setSummaryLoading(true);
+
+      try {
+        const res = await axiosClient.get(
+          `/expense/summary?category=${summaryCategory}`,
+        );
+        setSummaryData(res.data.summary);
+      } catch (error: any) {
+        if (error.response) {
+          setSummaryMsg(error.response.data.msg);
+        }
+      } finally {
+        setSummaryLoading(false);
+      }
+    };
+
+    fetchSummary();
+  }, [summaryCategory]);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -829,8 +855,13 @@ const Dashboard = () => {
                     No summary data available for this category.
                   </div>
                 ) : (
-                  <div style={{ width: "100%", height: 320 }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div style={{ width: "100%", height: 320, minWidth: 0 }}>
+                    <ResponsiveContainer
+                      width="100%"
+                      height="100%"
+                      minWidth={0}
+                      minHeight={320}
+                    >
                       <LineChart
                         data={summaryData}
                         margin={{ top: 10, right: 20, left: 20, bottom: 5 }}
