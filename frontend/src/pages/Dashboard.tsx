@@ -42,6 +42,7 @@ type summaryType = {
 };
 
 wednesday
+thursday
 
 const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
