@@ -9,6 +9,7 @@ const MonoComponent: React.FC = () => {
   useEffect(() => {
     const mono = new Connect({
       key: monoURL,
+      omohhhh,
     });
   }, []);
   return <div>MonoComponent</div>;
