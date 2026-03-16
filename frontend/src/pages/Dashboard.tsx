@@ -44,7 +44,7 @@ omohhh
 friday
 saturday
 sunday
-
+monday
 const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
   const { logout } = useAuth();
