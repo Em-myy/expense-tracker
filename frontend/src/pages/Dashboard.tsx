@@ -40,13 +40,7 @@ type summaryType = {
   category: string;
   date: string;
 };
-omohhh
-friday
-saturday
-sunday
-monday
-tuesday
-wednesday
+
 const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
   const { logout } = useAuth();
