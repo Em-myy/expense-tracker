@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import Connect from "@mono.co/connect.js";
+import Connect, { type MonoSuccessData } from "@mono.co/connect.js";
+import axiosClient from "../api/axios";
 
 const monoURL: string = import.meta.env.MONO_PUBLIC_KEY;
 
@@ -9,9 +10,27 @@ const MonoComponent: React.FC = () => {
   useEffect(() => {
     const mono = new Connect({
       key: monoURL,
+      onSuccess: async (data: MonoSuccessData) => {
+        console.log("Success! Temporary auth code ", data);
+
+        await axiosClient.post("/expense/exchangeCode", {
+          code: data.code,
+        });
+      },
+      onClose: () => console.log("User closed the widget without connecting"),
     });
+
+    mono.setup();
+
+    setMonoInstance(mono);
   }, []);
-  return <div>MonoComponent</div>;
+  return (
+    <div>
+      <button onClick={() => monoInstance?.open()} className="cursor-pointer ">
+        Link Bank Account
+      </button>
+    </div>
+  );
 };
 
 export default MonoComponent;

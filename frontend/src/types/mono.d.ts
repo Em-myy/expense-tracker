@@ -1,6 +1,8 @@
 declare module "@mono.co/connect.js" {
   export interface MonoSuccessData {
     id: string;
+    code: string;
+    [key: string]: any;
   }
 
   export interface MonoEventData {
