@@ -152,6 +152,33 @@ router.post("/exchangeCode", async (req, res) => {
   }
 });
 
-router.get("/getTransactions", async (req, res) => {});
+router.get("/getTransactions", async (req, res) => {
+  const { accountId } = req.query;
+
+  if (!accountId) {
+    return res.status(500).json({ error: "Account Id is required" });
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.withmono.com/v2/accounts/${accountId}/transactions`,
+      {
+        headers: {
+          "mono-sec-key": process.env.MONO_SECRET_KEY,
+          "Content-Type": "application/json",
+        },
+        params: {
+          limit: 100,
+          page: 1,
+        },
+      },
+    );
+
+    res.status(200).json({ success: true, transactions: response.data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch transactions" });
+  }
+});
 
 export default router;

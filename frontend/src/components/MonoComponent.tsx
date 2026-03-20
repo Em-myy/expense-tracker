@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Connect, { type MonoSuccessData } from "@mono.co/connect.js";
 import axiosClient from "../api/axios";
 
-const monoURL: string = import.meta.env.MONO_PUBLIC_KEY;
+const monoURL: string = import.meta.env.VITE_MONO_PUBLIC_KEY;
 
 const MonoComponent: React.FC = () => {
   const [monoInstance, setMonoInstance] = useState<any>(null);
