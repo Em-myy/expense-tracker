@@ -1,6 +1,7 @@
 import express from "express";
 import Expense from "../models/Expense.js";
 import { AuthMiddleware } from "../middleware/authMiddleware.js";
+import axios from "axios";
 
 const router = express.Router();
 
@@ -124,5 +125,33 @@ router.get("/summary", async (req, res) => {
     return res.status(404).json({ msg: "Error getting summary" });
   }
 });
+
+/* Mono routes */
+
+router.post("/exchangeCode", async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    const response = await axios.post(
+      "https://api.withmono.com/account/auth",
+      { code },
+      {
+        headers: {
+          "mono-sec-key": process.env.MONO_SECRET_KEY,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    const accountId = response.data.id;
+
+    res.status(200).json({ success: true, accountId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to link bank account" });
+  }
+});
+
+router.get("/getTransactions", async (req, res) => {});
 
 export default router;
