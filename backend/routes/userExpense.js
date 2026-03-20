@@ -2,6 +2,7 @@ import express from "express";
 import Expense from "../models/Expense.js";
 import { AuthMiddleware } from "../middleware/authMiddleware.js";
 import axios from "axios";
+import User from "../models/User.js";
 
 const router = express.Router();
 
@@ -130,6 +131,7 @@ router.get("/summary", async (req, res) => {
 
 router.post("/exchangeCode", async (req, res) => {
   const { code } = req.body;
+  const userId = req.user.id;
 
   try {
     const response = await axios.post(
@@ -138,14 +140,15 @@ router.post("/exchangeCode", async (req, res) => {
       {
         headers: {
           "mono-sec-key": process.env.MONO_SECRET_KEY,
-          "Content-Type": "application/json",
         },
       },
     );
 
     const accountId = response.data.id;
 
-    res.status(200).json({ success: true, accountId });
+    await User.findByIdAndUpdate(userId, { monoAccountId: accountId });
+
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to link bank account" });
@@ -153,11 +156,11 @@ router.post("/exchangeCode", async (req, res) => {
 });
 
 router.get("/getTransactions", async (req, res) => {
-  const { accountId } = req.query;
+  const userId = req.user.id;
 
-  if (!accountId) {
-    return res.status(500).json({ error: "Account Id is required" });
-  }
+  const user = await User.findById(userId);
+
+  const accountId = user.monoAccountId;
 
   try {
     const response = await axios.get(
@@ -165,7 +168,6 @@ router.get("/getTransactions", async (req, res) => {
       {
         headers: {
           "mono-sec-key": process.env.MONO_SECRET_KEY,
-          "Content-Type": "application/json",
         },
         params: {
           limit: 100,

@@ -11,8 +11,6 @@ const MonoComponent: React.FC = () => {
     const mono = new Connect({
       key: monoURL,
       onSuccess: async (data: MonoSuccessData) => {
-        console.log("Success! Temporary auth code ", data);
-
         await axiosClient.post("/expense/exchangeCode", {
           code: data.code,
         });
