@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axios";
+import MonoComponent from "../components/MonoComponent";
 import {
   CartesianGrid,
   Line,
@@ -46,6 +47,8 @@ const Dashboard = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
+  const [bankLinked, setBankLinked] = useState<boolean>(false);
+
   const [filterMonth, setFilterMonth] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
@@ -69,6 +72,9 @@ const Dashboard = () => {
       try {
         const res = await axiosClient.get("/expense/getExpenses");
         setTotalExpenses(res.data.expenses);
+
+        const statusRes = await axiosClient.get("/expense/bankStatus");
+        setBankLinked(statusRes.data.linked);
       } catch (error) {
         console.log(error);
       }
@@ -842,6 +848,28 @@ const Dashboard = () => {
                 )}
               </button>
             </div>
+
+            {!bankLinked && (
+              <div
+                style={{
+                  animation:
+                    "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both",
+                }}
+              >
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-white font-bold text-sm mb-1">
+                      Connect Your Bank
+                    </h2>
+                    <p className="text-slate-500 text-xs">
+                      Link your bank account to automatically import
+                      transactions
+                    </p>
+                  </div>
+                  <MonoComponent />
+                </div>
+              </div>
+            )}
 
             {/* Chart */}
             {getSummary && (
