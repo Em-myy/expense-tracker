@@ -140,6 +140,7 @@ router.post("/exchangeCode", async (req, res) => {
       {
         headers: {
           "mono-sec-key": process.env.MONO_SECRET_KEY,
+          "Content-Type": "application/json",
         },
       },
     );
@@ -155,19 +156,36 @@ router.post("/exchangeCode", async (req, res) => {
   }
 });
 
-router.get("/getTransactions", async (req, res) => {
+router.get("/bankStatus", async (req, res) => {
   const userId = req.user.id;
 
-  const user = await User.findById(userId);
-
-  const accountId = user.monoAccountId;
-
   try {
+    const user = await User.findById(userId);
+
+    res.status(200).json({ linked: !user.monoAccountId });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to check bank status" });
+  }
+});
+
+router.get("/getTransactions", async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const user = await User.findById(userId);
+
+    const accountId = user.monoAccountId;
+
+    if (!accountId) {
+      return res.status(400).json({ error: "No bank account linked" });
+    }
+
     const response = await axios.get(
       `https://api.withmono.com/v2/accounts/${accountId}/transactions`,
       {
         headers: {
           "mono-sec-key": process.env.MONO_SECRET_KEY,
+          "Content-Type": "application/json",
         },
         params: {
           limit: 100,
@@ -176,7 +194,7 @@ router.get("/getTransactions", async (req, res) => {
       },
     );
 
-    res.status(200).json({ transactions: response.data });
+    res.status(200).json({ success: true, transactions: response.data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch transactions" });
