@@ -176,7 +176,7 @@ router.get("/getTransactions", async (req, res) => {
       },
     );
 
-    res.status(200).json({ success: true, transactions: response.data });
+    res.status(200).json({ transactions: response.data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch transactions" });
