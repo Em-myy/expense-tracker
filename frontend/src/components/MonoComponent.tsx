@@ -30,15 +30,22 @@ const MonoComponent: React.FC = () => {
       mono.close();
     };
   }, []);
+
+  if (linked) {
+    return (
+      <p className="text-green-400 text-sm font-semibold">
+        Bank account linked ✓
+      </p>
+    );
+  }
   return (
     <div>
-      {linked ? (
-        <p>Bank account linked successfully</p>
-      ) : (
-        <button onClick={() => monoInstance?.open()} className="cursor-pointer">
-          Link bank account
-        </button>
-      )}
+      <button
+        onClick={() => monoInstance?.open()}
+        className="cursor-pointer glow-btn px-4 py-2 rounded-xl bg-amber-500 text-slate-900 font-bold text-sm"
+      >
+        Link bank account
+      </button>
     </div>
   );
 };
