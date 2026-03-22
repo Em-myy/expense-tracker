@@ -131,7 +131,7 @@ router.get("/summary", async (req, res) => {
 
 router.post("/exchangeCode", AuthMiddleware, async (req, res) => {
   const { code } = req.body;
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   try {
     const response = await axios.post(
@@ -157,12 +157,12 @@ router.post("/exchangeCode", AuthMiddleware, async (req, res) => {
 });
 
 router.get("/bankStatus", AuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
 
   try {
     const user = await User.findById(userId);
 
-    res.status(200).json({ linked: !user.monoAccountId });
+    res.status(200).json({ linked: !!user.monoAccountId });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to check bank status" });
@@ -170,7 +170,7 @@ router.get("/bankStatus", AuthMiddleware, async (req, res) => {
 });
 
 router.get("/getTransactions", AuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user._id;
   try {
     const user = await User.findById(userId);
 
