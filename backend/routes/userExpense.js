@@ -129,13 +129,13 @@ router.get("/summary", async (req, res) => {
 
 /* Mono routes */
 
-router.post("/exchangeCode", async (req, res) => {
+router.post("/exchangeCode", AuthMiddleware, async (req, res) => {
   const { code } = req.body;
   const userId = req.user.id;
 
   try {
     const response = await axios.post(
-      "https://api.withmono.com/account/auth",
+      "https://api.withmono.com/v2/accounts/auth",
       { code },
       {
         headers: {
@@ -156,7 +156,7 @@ router.post("/exchangeCode", async (req, res) => {
   }
 });
 
-router.get("/bankStatus", async (req, res) => {
+router.get("/bankStatus", AuthMiddleware, async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -169,7 +169,7 @@ router.get("/bankStatus", async (req, res) => {
   }
 });
 
-router.get("/getTransactions", async (req, res) => {
+router.get("/getTransactions", AuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   try {
     const user = await User.findById(userId);
