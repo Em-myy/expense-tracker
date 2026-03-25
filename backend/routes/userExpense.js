@@ -204,7 +204,7 @@ router.get("/getTransactions", AuthMiddleware, async (req, res) => {
 });
 
 // New route for the graph that will combine the normal expenses and the bank transactions
-router.post("/importTransaction", AuthMiddleware, async (req, res) => {
+router.post("/importTransactions", AuthMiddleware, async (req, res) => {
   const userId = req.user._id;
 
   try {
@@ -235,7 +235,7 @@ router.post("/importTransaction", AuthMiddleware, async (req, res) => {
       return res.status(404).json({ error: "No transactions found" });
     }
 
-    const expense = transactions.map((tx) => ({
+    const expenses = transactions.map((tx) => ({
       userId,
       title: tx.narration,
       amount: tx.amount / 100,

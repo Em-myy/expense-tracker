@@ -52,6 +52,9 @@ const Dashboard = () => {
   const [bankLoading, setBankLoading] = useState<boolean>(false);
   const [bankError, setBankError] = useState<string>("");
 
+  const [importing, setImporting] = useState<boolean>(false);
+  const [importMsg, setImportMsg] = useState<string>("");
+
   const [filterMonth, setFilterMonth] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterCategory, setFilterCategory] = useState<string>("");
@@ -80,16 +83,16 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchExpenses = async () => {
-      try {
-        const res = await axiosClient.get("/expense/getExpenses");
-        setTotalExpenses(res.data.expenses);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  const fetchExpenses = async () => {
+    try {
+      const res = await axiosClient.get("/expense/getExpenses");
+      setTotalExpenses(res.data.expenses);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  useEffect(() => {
     fetchExpenses();
     checkBankStatus();
   }, []);
@@ -135,11 +138,27 @@ const Dashboard = () => {
     } catch (error: any) {
       if (error.response) {
         setBankError(
-          error.response.data.msg || "Failed to load bank transactions",
+          error.response?.data?.error || "Failed to load bank transactions",
         );
       }
     } finally {
       setBankLoading(false);
+    }
+  };
+
+  const importBankTransactions = async () => {
+    setImporting(true);
+    setImportMsg("");
+
+    try {
+      const res = await axiosClient.post("/expense/importTransactions");
+      setImportMsg(`✓ ${res.data.imported} transactions imported successfully`);
+
+      await fetchExpenses();
+    } catch (error: any) {
+      setImportMsg(error.response?.data?.error || "Import failed");
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -458,6 +477,27 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
+
+        {!bankLinked && (
+          <div
+            style={{
+              animation:
+                "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both",
+            }}
+          >
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-white font-bold text-sm mb-1">
+                  Connect Your Bank
+                </h2>
+                <p className="text-slate-500 text-xs">
+                  Link your bank account to automatically import transactions
+                </p>
+              </div>
+              <MonoComponent onLinked={checkBankStatus} />
+            </div>
+          </div>
+        )}
 
         {/* All Transactions */}
         <div
@@ -976,27 +1016,6 @@ const Dashboard = () => {
 
         {/* Bank Transactions */}
 
-        {!bankLinked && (
-          <div
-            style={{
-              animation:
-                "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both",
-            }}
-          >
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-white font-bold text-sm mb-1">
-                  Connect Your Bank
-                </h2>
-                <p className="text-slate-500 text-xs">
-                  Link your bank account to automatically import transactions
-                </p>
-              </div>
-              <MonoComponent onLinked={checkBankStatus} />
-            </div>
-          </div>
-        )}
-
         {bankLinked && (
           <div
             style={{
@@ -1010,18 +1029,42 @@ const Dashboard = () => {
                   Bank Transactions
                 </h2>
               </div>
-              <button
-                onClick={fetchBankTransactions}
-                disabled={bankLoading}
-                className="glow-btn flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {bankLoading ? (
-                  <AiOutlineLoading3Quarters className="animate-spin text-base" />
-                ) : (
-                  "Load Transactions"
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={fetchBankTransactions}
+                  disabled={bankLoading}
+                  className="glow-btn flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {bankLoading ? (
+                    <AiOutlineLoading3Quarters className="animate-spin text-base" />
+                  ) : (
+                    "Load Transactions"
+                  )}
+                </button>
+
+                {bankTransactions.length > 0 && (
+                  <button
+                    onClick={importBankTransactions}
+                    disabled={importing}
+                    className="glow-btn flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {importing ? (
+                      <AiOutlineLoading3Quarters className="animate-spin text-base" />
+                    ) : (
+                      "Import to Expenses"
+                    )}
+                  </button>
                 )}
-              </button>
+              </div>
             </div>
+
+            {importMsg && (
+              <p
+                className={`text-xs mb-4 ${importMsg.startsWith("✓") ? "text-green-400" : "text0red-400"}`}
+              >
+                {importMsg}
+              </p>
+            )}
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm overflow-hidden">
               {bankError && (
@@ -1078,7 +1121,7 @@ const Dashboard = () => {
                     }`}
                   >
                     {tx.type === "credit" ? "+" : "-"}
-                    {formatCurrency(tx.amount / 100)} {/* Mono returns kobo */}
+                    {formatCurrency(tx.amount / 100)}
                   </span>
                 </div>
               ))}
