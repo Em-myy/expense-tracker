@@ -203,4 +203,66 @@ router.get("/getTransactions", AuthMiddleware, async (req, res) => {
   }
 });
 
+// New route for the graph that will combine the normal expenses and the bank transactions
+router.post("/importTransaction", AuthMiddleware, async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId);
+    const accountId = user.monoAccountId;
+
+    if (!accountId) {
+      return res.status(400).json({ error: "No account linked" });
+    }
+
+    const response = await axios.get(
+      `https://api.withmono.com/v2/accounts/${accountId}/transactions`,
+      {
+        headers: {
+          "mono-sec-key": process.env.MONO_SECRET_KEY,
+          "Content-Type": "application/json",
+        },
+        params: {
+          limit: 100,
+          page: 1,
+        },
+      },
+    );
+
+    const transactions = response.data.data;
+
+    if (!transactions || transactions.length === 0) {
+      return res.status(404).json({ error: "No transactions found" });
+    }
+
+    const expense = transactions.map((tx) => ({
+      userId,
+      title: tx.narration,
+      amount: tx.amount / 100,
+      category: tx.type === "credit" ? "income" : "expense",
+      date: new Date(tx.date),
+    }));
+
+    const inserted = [];
+    for (const expense of expenses) {
+      const existingExpense = await Expense.findOne({
+        userId,
+        title: expense.title,
+        amount: expense.amount,
+        date: expense.date,
+      });
+
+      if (!existingExpense) {
+        await Expense.create(expense);
+        inserted.push(expense);
+      }
+    }
+
+    return res.status(200).json({ success: true, imported: inserted.length });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to import transactions" });
+  }
+});
+
 export default router;
