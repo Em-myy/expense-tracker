@@ -48,6 +48,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const [bankLinked, setBankLinked] = useState<boolean>(false);
+  const [bankTransactions, setBankTransactions] = useState<any[]>([]);
+  const [bankLoading, setBankLoading] = useState<boolean>(false);
+  const [bankError, setBankError] = useState<string>("");
 
   const [filterMonth, setFilterMonth] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
@@ -67,19 +70,28 @@ const Dashboard = () => {
     navigate(`/expensesDetails/${id}`);
   };
 
+  const checkBankStatus = async () => {
+    try {
+      const res = await axiosClient.get("/expense/bankStatus");
+      console.log("bank status: ", res.data);
+      setBankLinked(res.data.linked);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
         const res = await axiosClient.get("/expense/getExpenses");
         setTotalExpenses(res.data.expenses);
-
-        const statusRes = await axiosClient.get("/expense/bankStatus");
-        setBankLinked(statusRes.data.linked);
       } catch (error) {
         console.log(error);
       }
     };
+
     fetchExpenses();
+    checkBankStatus();
   }, []);
 
   useEffect(() => {
@@ -111,6 +123,24 @@ const Dashboard = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const fetchBankTransactions = async () => {
+    setBankLoading(true);
+    setBankError("");
+
+    try {
+      const res = await axiosClient.get("/expense/getTransactions");
+      setBankTransactions(res.data.transactions || []);
+    } catch (error: any) {
+      if (error.response) {
+        setBankError(
+          error.response.data.msg || "Failed to load bank transactions",
+        );
+      }
+    } finally {
+      setBankLoading(false);
+    }
   };
 
   const handleFilter = async (): Promise<void> => {
@@ -849,28 +879,6 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {!bankLinked && (
-              <div
-                style={{
-                  animation:
-                    "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both",
-                }}
-              >
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-6 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-white font-bold text-sm mb-1">
-                      Connect Your Bank
-                    </h2>
-                    <p className="text-slate-500 text-xs">
-                      Link your bank account to automatically import
-                      transactions
-                    </p>
-                  </div>
-                  <MonoComponent />
-                </div>
-              </div>
-            )}
-
             {/* Chart */}
             {getSummary && (
               <div style={{ animation: "fadeIn 0.5s ease both" }}>
@@ -965,6 +973,118 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Bank Transactions */}
+
+        {!bankLinked && (
+          <div
+            style={{
+              animation:
+                "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both",
+            }}
+          >
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-white font-bold text-sm mb-1">
+                  Connect Your Bank
+                </h2>
+                <p className="text-slate-500 text-xs">
+                  Link your bank account to automatically import transactions
+                </p>
+              </div>
+              <MonoComponent onLinked={checkBankStatus} />
+            </div>
+          </div>
+        )}
+
+        {bankLinked && (
+          <div
+            style={{
+              animation: "slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both",
+            }}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 text-xl">🏦</span>
+                <h2 className="text-lg font-bold text-white">
+                  Bank Transactions
+                </h2>
+              </div>
+              <button
+                onClick={fetchBankTransactions}
+                disabled={bankLoading}
+                className="glow-btn flex items-center gap-2 px-5 py-2.5 rounded-xl cursor-pointer bg-amber-500 text-slate-900 font-bold text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {bankLoading ? (
+                  <AiOutlineLoading3Quarters className="animate-spin text-base" />
+                ) : (
+                  "Load Transactions"
+                )}
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm overflow-hidden">
+              {bankError && (
+                <div className="px-5 py-8 text-center text-red-400 text-sm">
+                  {bankError}
+                </div>
+              )}
+
+              {!bankError && bankTransactions.length === 0 && !bankLoading && (
+                <div className="px-5 py-10 text-center">
+                  <p className="text-3xl mb-2">🏦</p>
+                  <p className="text-slate-500 text-sm">
+                    Click "Load Transactions" to import from your bank
+                  </p>
+                </div>
+              )}
+
+              {bankTransactions.map((tx: any, i: number) => (
+                <div
+                  key={tx.id || i}
+                  className="flex items-center justify-between px-5 py-4 border-b border-slate-800/60 last:border-0 hover:bg-slate-800/40 transition-colors duration-150"
+                  style={{ animation: `slideUp 0.3s ease ${i * 0.03}s both` }}
+                >
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center border shrink-0 ${
+                        tx.type === "credit"
+                          ? "bg-green-500/10 border-green-500/30"
+                          : "bg-red-500/10 border-red-500/30"
+                      }`}
+                    >
+                      {tx.type === "credit" ? (
+                        <BsArrowUpCircleFill className="text-green-400 text-sm" />
+                      ) : (
+                        <BsArrowDownCircleFill className="text-red-400 text-sm" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-semibold">
+                        {tx.narration}
+                      </p>
+                      <p className="text-slate-500 text-xs">
+                        {new Date(tx.date).toLocaleDateString("en-NG", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`text-sm font-bold ${
+                      tx.type === "credit" ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
+                    {tx.type === "credit" ? "+" : "-"}
+                    {formatCurrency(tx.amount / 100)} {/* Mono returns kobo */}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Footer note */}
         <p

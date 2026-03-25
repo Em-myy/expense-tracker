@@ -4,9 +4,12 @@ import axiosClient from "../api/axios";
 
 const monoURL: string = import.meta.env.VITE_MONO_PUBLIC_KEY;
 
-const MonoComponent: React.FC = () => {
+interface MonoComponentProps {
+  onLinked?: () => void;
+}
+
+const MonoComponent: React.FC<MonoComponentProps> = ({ onLinked }) => {
   const [monoInstance, setMonoInstance] = useState<any>(null);
-  const [linked, setLinked] = useState<boolean>(false);
 
   useEffect(() => {
     const mono = new Connect({
@@ -16,7 +19,7 @@ const MonoComponent: React.FC = () => {
         await axiosClient.post("/expense/exchangeCode", {
           code: data.code,
         });
-        setLinked(true);
+        onLinked?.();
       },
 
       onClose: () => console.log("User closed the widget without connecting"),
@@ -31,13 +34,6 @@ const MonoComponent: React.FC = () => {
     };
   }, []);
 
-  if (linked) {
-    return (
-      <p className="text-green-400 text-sm font-semibold">
-        Bank account linked ✓
-      </p>
-    );
-  }
   return (
     <div>
       <button

@@ -133,6 +133,8 @@ router.post("/exchangeCode", AuthMiddleware, async (req, res) => {
   const { code } = req.body;
   const userId = req.user._id;
 
+  console.log("exchangeCode hit - userId:", userId, "code:", code);
+
   try {
     const response = await axios.post(
       "https://api.withmono.com/v2/accounts/auth",
@@ -145,9 +147,17 @@ router.post("/exchangeCode", AuthMiddleware, async (req, res) => {
       },
     );
 
-    const accountId = response.data.id;
+    console.log("Mono response:", response.data);
 
-    await User.findByIdAndUpdate(userId, { monoAccountId: accountId });
+    const accountId = response.data.data.id;
+
+    console.log("accountId to save:", accountId);
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      monoAccountId: accountId,
+    });
+
+    console.log("Updated user monoAccountId:", updatedUser.monoAccountId);
 
     res.status(200).json({ success: true });
   } catch (error) {
