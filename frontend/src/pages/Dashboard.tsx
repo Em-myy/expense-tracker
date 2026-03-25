@@ -73,7 +73,7 @@ const Dashboard = () => {
   const checkBankStatus = async () => {
     try {
       const res = await axiosClient.get("/expense/bankStatus");
-      console.log("bank status: ", res.data);
+
       setBankLinked(res.data.linked);
     } catch (error) {
       console.log(error);
