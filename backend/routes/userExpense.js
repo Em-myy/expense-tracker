@@ -241,6 +241,7 @@ router.post("/importTransactions", AuthMiddleware, async (req, res) => {
       amount: tx.amount / 100,
       category: tx.type === "credit" ? "income" : "expense",
       date: new Date(tx.date),
+      source: "mono",
     }));
 
     const inserted = [];
