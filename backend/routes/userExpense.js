@@ -273,7 +273,7 @@ router.delete("/removeImported", AuthMiddleware, async (req, res) => {
   try {
     const result = await Expense.deleteMany({ userId, source: "mono" });
 
-    res.status(200).json({ success: true, removed: result.deletedCount() });
+    res.status(200).json({ success: true, removed: result.deletedCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to delete transactions" });

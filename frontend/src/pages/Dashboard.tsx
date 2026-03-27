@@ -24,6 +24,7 @@ import {
 } from "react-icons/md";
 import { BsArrowUpCircleFill, BsArrowDownCircleFill } from "react-icons/bs";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import DeleteModal from "../components/DeleteModal";
 
 type expenseType = {
   _id: string;
@@ -54,6 +55,8 @@ const Dashboard = () => {
 
   const [importing, setImporting] = useState<boolean>(false);
   const [importMsg, setImportMsg] = useState<string>("");
+
+  const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
 
   const [filterMonth, setFilterMonth] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
@@ -1054,8 +1057,24 @@ const Dashboard = () => {
                     )}
                   </button>
                 )}
+
+                <button
+                  onClick={() => setShowRemoveModal(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Remove Imported
+                </button>
               </div>
             </div>
+
+            {showRemoveModal && (
+              <DeleteModal
+                expenseTitle="All imported bank transactions"
+                type="all"
+                onClose={() => setShowRemoveModal(false)}
+                onDeleteAll={fetchExpenses}
+              />
+            )}
 
             {importMsg && (
               <p
