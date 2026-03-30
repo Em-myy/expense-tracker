@@ -42,8 +42,6 @@ type summaryType = {
   category: string;
   date: string;
 };
-saturday
-sunday
 
 const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
