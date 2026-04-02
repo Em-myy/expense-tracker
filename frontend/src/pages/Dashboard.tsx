@@ -43,8 +43,6 @@ type summaryType = {
   date: string;
 };
 
-i know i am writing rubbish but i i will fix it later
-another rubbish
 const Dashboard = () => {
   const [totalExpenses, setTotalExpenses] = useState<expenseType[]>([]);
   const { logout } = useAuth();
