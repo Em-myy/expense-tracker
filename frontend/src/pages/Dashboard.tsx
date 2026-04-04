@@ -41,7 +41,7 @@ type summaryType = {
   amount: number;
   category: string;
   date: string;
-  name
+  name: string
 };
 
 const Dashboard = () => {
