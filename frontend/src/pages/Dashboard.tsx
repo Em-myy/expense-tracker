@@ -32,7 +32,7 @@ type expenseType = {
   title: string;
   amount: string;
   category: string;
-  date: string
+  date: string;
 };
 
 type summaryType = {
