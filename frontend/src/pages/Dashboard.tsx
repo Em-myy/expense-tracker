@@ -37,7 +37,7 @@ type expenseType = {
 
 type summaryType = {
   _id: string
-  title: string;
+  title: string
   amount: number;
   category: string;
   date: string;
