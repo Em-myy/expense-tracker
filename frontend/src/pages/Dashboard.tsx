@@ -27,7 +27,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import DeleteModal from "../components/DeleteModal";
 
 type expenseType = {
-  _id: string
+  _id: string;
   userId: string
   title: string
   amount: string
