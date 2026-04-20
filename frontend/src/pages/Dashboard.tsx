@@ -29,7 +29,7 @@ import DeleteModal from "../components/DeleteModal";
 type expenseType = {
   _id: string;
   userId: string;
-  title: string
+  title: string;
   amount: string
   category: string
   date: string
