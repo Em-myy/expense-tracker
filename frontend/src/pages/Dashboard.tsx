@@ -30,7 +30,7 @@ type expenseType = {
   _id: string;
   userId: string;
   title: string;
-  amount: string
+  amount: string;
   category: string
   date: string
 };
