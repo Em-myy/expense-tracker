@@ -31,7 +31,7 @@ type expenseType = {
   userId: string;
   title: string;
   amount: string;
-  category: string
+  category: string;
   date: string
 };
 
