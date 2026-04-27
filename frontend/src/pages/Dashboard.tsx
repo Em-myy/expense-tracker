@@ -39,7 +39,7 @@ type summaryType = {
   _id: string;
   title: string;
   amount: number;
-  category: string
+  category: string;
   date: string
 };
 
